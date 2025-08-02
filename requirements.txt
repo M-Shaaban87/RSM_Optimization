@@ -1,10 +1,7 @@
 streamlit
 pandas
 numpy
-matplotlib.pyplot
-statsmodels.api
-MinMaxScaler
-minimize
-add_constant
-combinations
-
+matplotlib
+scikit-learn
+statsmodels
+openpyxl
