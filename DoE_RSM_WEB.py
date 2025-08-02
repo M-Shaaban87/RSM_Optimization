@@ -105,6 +105,18 @@ if uploaded_file:
 
         sensitivity_df = pd.DataFrame(sensitivity).sort_values(by="Sensitivity", ascending=False)
 
+        # Save to session state
+        st.session_state.analysis = {
+            "X": X,
+            "y": y,
+            "X_scaled_df": X_scaled_df,
+            "X_rsm": X_rsm,
+            "rsm_model": rsm_model,
+            "interactions": interactions,
+            "output_column": output_column,
+            "sensitivity_df": sensitivity_df
+        }
+
         st.success("Analysis Completed!")
 
         st.subheader("Optimal Max Result")
@@ -127,16 +139,24 @@ if uploaded_file:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
+    if "analysis" in st.session_state:
+        analysis = st.session_state.analysis
         st.subheader("2D/3D Plot")
-        var1 = st.selectbox("X Variable", input_columns)
-        var2 = st.selectbox("Y Variable", input_columns)
+        var1 = st.selectbox("X Variable", analysis["X"].columns)
+        var2 = st.selectbox("Y Variable", analysis["X"].columns)
         plot_type = st.radio("Plot Type", ["2D", "3D"])
 
         if st.button("Show Plot"):
+            X = analysis["X"]
+            y = analysis["y"]
+            X_scaled_df = analysis["X_scaled_df"]
+            X_rsm = analysis["X_rsm"]
+            rsm_model = analysis["rsm_model"]
+            interactions = analysis["interactions"]
+            output_column = analysis["output_column"]
+
             V1, V2 = np.meshgrid(np.linspace(0, 1, 30), np.linspace(0, 1, 30))
             Z = np.zeros_like(V1)
-
-            model = sm.OLS(y, add_constant(X_rsm)).fit()
             baseline = X_scaled_df.mean()
 
             for i in range(V1.shape[0]):
@@ -150,7 +170,7 @@ if uploaded_file:
                     for a, b in interactions:
                         row_df[f"{a}*{b}"] = row_df[a] * row_df[b]
                     row_df = add_constant(row_df, has_constant='add')
-                    Z[i, j] = model.predict(row_df).item()
+                    Z[i, j] = rsm_model.predict(row_df).item()
 
             fig = plt.figure(figsize=(8, 6))
             if plot_type == "3D":
