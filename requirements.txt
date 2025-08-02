@@ -1,0 +1,10 @@
+streamlit
+pandas
+openpyxl
+numpy
+matplotlib.pyplot
+statsmodels.api
+MinMaxScaler
+minimize
+add_constant
+combinations
