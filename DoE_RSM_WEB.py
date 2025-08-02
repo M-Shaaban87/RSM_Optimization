@@ -116,7 +116,16 @@ if uploaded_file:
         st.subheader("Sensitivity Analysis")
         st.dataframe(sensitivity_df)
 
-        st.download_button("Download Sensitivity as Excel", data=sensitivity_df.to_excel(index=False), file_name="sensitivity.xlsx")
+        excel_buffer = io.BytesIO()
+        sensitivity_df.to_excel(excel_buffer, index=False)
+        excel_buffer.seek(0)
+
+        st.download_button(
+            label="Download Sensitivity as Excel",
+            data=excel_buffer,
+            file_name="sensitivity.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
         st.subheader("2D/3D Plot")
         var1 = st.selectbox("X Variable", input_columns)
